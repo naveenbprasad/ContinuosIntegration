@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Clone the GitHub repository
+                git url: 'https://github.com/your_username/your_repository.git', branch: 'main'
+            }
+        }
+
+        stage('Build and Test') {
+            steps {
+                // Run Maven tests (using the Windows command line)
+                bat 'mvn clean test'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Tests passed!'
+            // You can add notification logic here
+        }
+        failure {
+            echo 'Tests failed!'
+            // You can add notification logic here
+        }
+    }
+}
