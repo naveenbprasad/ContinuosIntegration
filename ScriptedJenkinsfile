@@ -1,0 +1,29 @@
+node {
+
+    stage('Clone Repository') {
+        echo 'Cloning the GitHub repository...'
+        git url: 'https://github.com/naveenbprasad/ContinuosIntegration.git', branch: 'main'
+    }
+
+
+    stage('Build and Test') {
+        echo 'Running Maven tests...'
+        try {
+            bat 'mvn clean test'
+        } catch (Exception e) {
+            currentBuild.result = 'FAILURE'
+            echo 'Tests failed!'
+            error 'Maven tests failed!' /
+        }
+    }
+
+    stage('Notify') {
+        def buildStatus = currentBuild.result ?: 'SUCCESS'
+        echo "Build finished with status: ${buildStatus}"
+        if (buildStatus == 'SUCCESS') {
+            echo 'Tests passed!'
+        } else {
+            echo 'Tests failed!'
+        }
+    }
+}
