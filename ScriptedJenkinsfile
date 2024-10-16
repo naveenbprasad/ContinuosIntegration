@@ -1,28 +1,31 @@
 node {
-
+    // Stage 1: Clone the Repository
     stage('Clone Repository') {
         echo 'Cloning the GitHub repository...'
         git url: 'https://github.com/naveenbprasad/ContinuosIntegration.git', branch: 'main'
     }
 
-
+    // Stage 2: Build and Test
     stage('Build and Test') {
         echo 'Running Maven tests...'
         try {
-            bat 'mvn clean test'
+            bat 'mvn clean test' // For Windows
         } catch (Exception e) {
             currentBuild.result = 'FAILURE'
             echo 'Tests failed!'
-            error 'Maven tests failed!' /
+            error('Maven tests failed!')
         }
     }
 
+    // Post Actions
     stage('Notify') {
         def buildStatus = currentBuild.result ?: 'SUCCESS'
         echo "Build finished with status: ${buildStatus}"
         if (buildStatus == 'SUCCESS') {
             echo 'Tests passed!'
+            // You can add success notification logic here
         } else {
+            // You can add failure notification logic here
             echo 'Tests failed!'
         }
     }
