@@ -2,29 +2,69 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                // Clone the GitHub repository
-                git url: 'https://github.com/naveenbprasad/ContinuosIntegration.git', branch: 'main'
+                git url: 'https://github.com/naveenbprasad/ContinuosIntegration', branch: 'main'
             }
         }
 
-        stage('Build and Test') {
+        stage('Build') {
             steps {
-                // Run Maven tests (using the Windows command line)
-                bat 'mvn clean test'
+                script {
+                    // Build the project
+                    bat 'mvn clean'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                 try {
+                     bat 'mvn test'
+                    } catch (Exception e) {
+                        echo "There are test failures.. Please refer report"
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
+            }
+        }
+
+        stage('Publish Report') {
+            steps {
+                script {
+                    publishHTML (target: [
+                        reportDir: 'target',
+                        reportFiles: 'ExtentReport.html',
+                        reportName: 'Extent Report',
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true
+                    ])
+                }
             }
         }
     }
 
     post {
-        success {
-            echo 'Tests passed!'
-            // You can add notification logic here
+       success {
+            echo 'Build and tests were successful!'
+            emailext(
+                to: 'naveenprasad_balasubramaniyan@epam.com',  // Update with recipient's email
+                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Good news! The build was successful.\n\nCheck the details at ${env.BUILD_URL}.",
+                attachLog: true,
+                attachmentsPattern: 'target/ExtentReport.html'
+            )
         }
         failure {
-            echo 'Tests failed!'
-            // You can add notification logic here
+            echo 'Build or tests failed. Please review the report for details.'
+            emailext(
+                to: 'naveenprasad_balasubramaniyan@epam.com',  // Update with recipient's email
+                subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "The build has failed.\n\nCheck the details at ${env.BUILD_URL}.",
+                attachLog: true,
+                attachmentsPattern: 'target/ExtentReport.html'
+            )
         }
     }
 }
