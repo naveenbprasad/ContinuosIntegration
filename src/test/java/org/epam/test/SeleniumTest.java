@@ -11,7 +11,6 @@ public class SeleniumTest {
 
     @Test
     public void testHelloWorld() {
-        System.setProperty("webdriver.chrome.driver", "/path/to/chromedriver");
         WebDriver driver = new ChromeDriver();
         driver.get("http://localhost:8080/my-java-webapp/");
         assertTrue(driver.getPageSource().contains("Hello, World!"));
