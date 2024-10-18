@@ -7,13 +7,7 @@ pipeline {
                 bat 'mvn clean package'
             }
         }
-        stage('Test') {
-            steps {
-                echo 'Running Selenium tests...'
-                // Run the Selenium tests
-                bat 'mvn test'
-            }
-        }
+
         stage('Deploy') {
             steps {
                 echo 'Deploying the web application...'
@@ -21,6 +15,13 @@ pipeline {
                 bat 'java -jar target/my-java-webapp-1.0-SNAPSHOT.war &'
             }
         }
+          stage('Test') {
+                    steps {
+                        echo 'Running Selenium tests...'
+                        // Run the Selenium tests
+                        bat 'mvn test'
+                    }
+                }
     }
     post {
         success {
