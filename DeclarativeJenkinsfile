@@ -49,7 +49,7 @@ pipeline {
        success {
             echo 'Build and tests were successful!'
             emailext(
-                to: 'naveenprasad_balasubramaniyan@epam.com',  // Update with recipient's email
+                to: 'naveenprasad_balasubramaniyan@epam.com',
                 subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: "Good news! The build was successful.\n\nCheck the details at ${env.BUILD_URL}.",
                 attachLog: true,
@@ -59,7 +59,7 @@ pipeline {
         failure {
             echo 'Build or tests failed. Please review the report for details.'
             emailext(
-                to: 'naveenprasad_balasubramaniyan@epam.com',  // Update with recipient's email
+                to: 'naveenprasad_balasubramaniyan@epam.com',
                 subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: "The build has failed.\n\nCheck the details at ${env.BUILD_URL}.",
                 attachLog: true,
