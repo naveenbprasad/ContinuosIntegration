@@ -12,7 +12,7 @@ pipeline {
             steps {
                 echo 'Deploying the web application...'
                 // Start a simple web server to serve the WAR file
-                bat 'java -jar target/my-java-webapp-1.0-SNAPSHOT.war &'
+                bat 'java -jar target/my-java-webapp-1.0-SNAPSHOT.war --server.port=8081 &'
             }
         }
           stage('Test') {
@@ -25,7 +25,7 @@ pipeline {
     }
     post {
         success {
-            echo 'Deployment successful! Access the application at http://localhost:8080/my-java-webapp/'
+            echo 'Deployment successful! Access the application at http://localhost:8081/my-java-webapp/'
         }
         failure {
             echo 'Deployment failed. Check the logs for details.'
