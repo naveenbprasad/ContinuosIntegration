@@ -27,8 +27,8 @@ node {
             ])
         }
 
-    } catch (Exception e)
-        currentBuild.result = 'FAILURE'{
+    } catch (Exception e){
+        currentBuild.result = 'FAILURE'
         echo "Pipeline failed: ${e.message}"
     } finally {
         if (currentBuild.result == 'SUCCESS') {
