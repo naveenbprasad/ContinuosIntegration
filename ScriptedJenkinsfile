@@ -1,32 +1,54 @@
 node {
-    // Stage 1: Clone the Repository
-    stage('Clone Repository') {
-        echo 'Cloning the GitHub repository...'
-        git url: 'https://github.com/naveenbprasad/ContinuosIntegration.git', branch: 'main'
-    }
-
-    // Stage 2: Build and Test
-    stage('Build and Test') {
-        echo 'Running Maven tests...'
-        try {
-            bat 'mvn clean test' // For Windows
-        } catch (Exception e) {
-            currentBuild.result = 'FAILURE'
-            echo 'Tests failed!'
-            error('Maven tests failed!')
+    try {
+        stage('Checkout') {
+            git url: 'https://github.com/naveenbprasad/ContinuosIntegration', branch: 'main'
         }
-    }
 
-    // Post Actions
-    stage('Notify') {
-        def buildStatus = currentBuild.result ?: 'SUCCESS'
-        echo "Build finished with status: ${buildStatus}"
-        if (buildStatus == 'SUCCESS') {
-            echo 'Tests passed!'
-            // You can add success notification logic here
+        stage('Build') {
+            bat 'mvn clean'
+        }
+
+        stage('Test') {
+            try {
+                bat 'mvn test'
+            } catch (Exception e) {
+                echo "There are test failures.. Please refer report"
+                currentBuild.result = 'FAILURE'
+            }
+        }
+
+        stage('Publish Report') {
+            publishHTML (target: [
+                reportDir: 'target',
+                reportFiles: 'ExtentReport.html',
+                reportName: 'Extent Report',
+                alwaysLinkToLastBuild: true,
+                keepAll: true
+            ])
+        }
+
+    } catch (Exception e)
+        currentBuild.result = 'FAILURE'{
+        echo "Pipeline failed: ${e.message}"
+    } finally {
+        if (currentBuild.result == 'SUCCESS') {
+            echo 'Build and tests were successful!'
+            emailext(
+                to: 'naveenprasad_balasubramaniyan@epam.com',
+                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Good news! The build was successful.\n\nCheck the details at ${env.BUILD_URL}.",
+                attachLog: true,
+                attachmentsPattern: 'target/ExtentReport.html'
+            )
         } else {
-            // You can add failure notification logic here
-            echo 'Tests failed!'
+            echo 'Build or tests failed. Please review the report for details.'
+            emailext(
+                to: 'naveenprasad_balasubramaniyan@epam.com',
+                subject: "FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "The build has failed.\n\nCheck the details at ${env.BUILD_URL}.",
+                attachLog: true,
+                attachmentsPattern: 'target/ExtentReport.html'
+            )
         }
     }
 }
