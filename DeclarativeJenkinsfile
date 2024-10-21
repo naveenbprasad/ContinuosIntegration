@@ -13,7 +13,7 @@ pipeline {
                        script {
                            echo 'Deploying the WAR file to Tomcat...'
                            def deployCommand = """
-                              curl -u ${params.TOMCAT_USERNAME}:${params.TOMCAT_PASSWORD} -X POST "${TOMCAT_URL}/deploy?path=/my-app&update=true" -F "war=@${WAR_FILE}"
+                              curl -u admin:admin -X POST "http://localhost:8081/manager/text/deploy?path=/my-app&update=true" -F "war=@target/WebApplication-1.0-SNAPSHOT.war"
                            """
                            bat deployCommand
                        }
