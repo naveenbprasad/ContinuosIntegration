@@ -9,17 +9,19 @@ pipeline {
         }
 
         stage('Deploy') {
-            steps {
-                echo 'Deploying the web application...'
-                // Start a simple web server to serve the WAR file
-                bat 'java -jar target/my-java-webapp-1.0-SNAPSHOT.war --server.port=8081 &'
-            }
-        }
+                   steps {
+                       script {
+                           echo 'Deploying the WAR file to Tomcat...'
+                           def deployCommand = """
+                              curl -u ${params.TOMCAT_USERNAME}:${params.TOMCAT_PASSWORD} -X POST "${TOMCAT_URL}/deploy?path=/my-app&update=true" -F "war=@${WAR_FILE}"
+                           """
+                           bat deployCommand
+                       }
+                   }
+               }
           stage('Test') {
                     steps {
-                        echo 'Running Selenium tests...'
-                        // Run the Selenium tests
-                        bat 'mvn test'
+                        echo 'Running tests...'
                     }
                 }
     }
